@@ -3,7 +3,8 @@
   "name": "momocha",
   "description": "모두모두 편안하고 안전한 배차되세요",
   "scripts": {
-    "start": "parcel index.html"
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",

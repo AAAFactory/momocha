@@ -1,0 +1,29 @@
+{
+    "startName": "start",
+    "startX": "126.952925",
+    "startY": "37.479973",
+    "startTime": "202207041630",
+    "endName": "end",
+    "endX": "126.952925",
+    "endY": "37.479973",
+    "viaPoints": [
+        {
+            "viaPointId": "test01",
+            "viaPointName": "본아한의원",
+            "viaX": "126.931152", 
+            "viaY": "37.486008"
+        },
+        {
+            "viaPointId": "test02",
+            "viaPointName": "당구장",
+            "viaX": "126.937093",
+            "viaY": "37.471517"
+        },
+        {
+            "viaPointId": "test03",
+            "viaPointName": "신설초등학교",
+            "viaX": "126.935217",
+            "viaY": "37.469642"
+        }
+    ]
+}

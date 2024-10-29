@@ -1,5 +1,8 @@
 import { useNavigate } from 'react-router-dom';
+
 import styled from 'styled-components';
+
+import passengers from './data/passengers';
 
 const Container = styled.div`
   input {
@@ -69,46 +72,18 @@ export default function SchedulePage() {
           탑승자 목록
         </h1>
         <Passengers>
-          <li>
-            <div>
-              <h2>김덕수</h2>
-              <p>관악구 신림동 251-466 하나로마트 앞</p>
-            </div>
-            <div>
-              <button type="button">삭제</button>
-              <button type="button" onClick={handleClickLocation}>위치보기</button>
-            </div>
-          </li>
-          <li>
-            <div>
-              <h2>유경수</h2>
-              <p>관악구 신림동 231-198 농협 앞</p>
-            </div>
-            <div>
-              <button type="button">삭제</button>
-              <button type="button" onClick={handleClickLocation}>위치보기</button>
-            </div>
-          </li>
-          <li>
-            <div>
-              <h2>박하나</h2>
-              <p>관악구 신림동 하나아파트 301동 앞</p>
-            </div>
-            <div>
-              <button type="button">삭제</button>
-              <button type="button" onClick={handleClickLocation}>위치보기</button>
-            </div>
-          </li>
-          <li>
-            <div>
-              <h2>주현영</h2>
-              <p>관악구 봉천동 경원빌라 101동</p>
-            </div>
-            <div>
-              <button type="button">삭제</button>
-              <button type="button" onClick={handleClickLocation}>위치보기</button>
-            </div>
-          </li>
+          {passengers.map((passenger) => (
+            <li>
+              <div>
+                <h2>{passenger.name}</h2>
+                <p>{passenger.location}</p>
+              </div>
+              <div>
+                <button type="button">삭제</button>
+                <button type="button" onClick={handleClickLocation}>위치보기</button>
+              </div>
+            </li>
+          ))}
         </Passengers>
         <OptimizeRoute onClick={handleClick}>
           최적 경로 찾기

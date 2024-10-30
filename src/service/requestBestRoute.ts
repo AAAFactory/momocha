@@ -2,67 +2,83 @@ import axios from 'axios';
 
 import dayjs from 'dayjs';
 
-interface Passenger {
-  name: string;
-  location: string;
-  coordinates: number[];
+import Passenger from '../types/Passenger';
+import BestRoute, { Point } from '../types/BestRoute';
+
+interface Geometry {
+  type: 'Point' | 'LineString';
+  coordinates: number[] | number[][];
 }
 
-export default async function requestBestRoute(passengers: Passenger[]) {
-  const baseCoordinates = ['37.479973', '126.952925'];
+interface Feature {
+  geometry: Geometry;
+  properties: {
+    viaPointId?: string;
+    arriveTime?: string;
+  };
+}
 
-  // TODO: 서버에서는 Timezone 이 고려된 시간이어야함.
+interface TMapResponse {
+  features: Feature[];
+}
+
+export default async function requestBestRoute(
+  baseCoordinates: number[],
+  passengers: Passenger[],
+): Promise<BestRoute> {
   const startTime = dayjs().format('YYYYMMDDHHmm');
 
-  const { data } = await axios.post('https://apis.openapi.sk.com/tmap/routes/routeOptimization10?version=1', {
-    startName: 'start',
-    startX: baseCoordinates[1],
-    startY: baseCoordinates[0],
-    startTime,
-    endName: 'end',
-    endX: baseCoordinates[1],
-    endY: baseCoordinates[0],
-    viaPoints: passengers.map((p) => ({
-      viaPointId: p.name,
-      viaPointName: p.name,
-      viaX: p.coordinates[1].toString(),
-      viaY: p.coordinates[0].toString(),
-    })),
-  }, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      appKey: process.env.TMAP_KEY,
+  const { data } = await axios.post<TMapResponse>(
+    'https://apis.openapi.sk.com/tmap/routes/routeOptimization10?version=1',
+    {
+      startName: 'start',
+      startX: baseCoordinates[1].toString(),
+      startY: baseCoordinates[0].toString(),
+      startTime,
+      endName: 'end',
+      endX: baseCoordinates[1].toString(),
+      endY: baseCoordinates[0].toString(),
+      viaPoints: passengers.map((p) => ({
+        viaPointId: p.name,
+        viaPointName: p.name,
+        viaX: p.coordinates[1].toString(),
+        viaY: p.coordinates[0].toString(),
+      })),
     },
-  });
+    {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        appKey: process.env.TMAP_KEY,
+      },
+    },
+  );
 
-  //
+  const segments = data.features.reduce((prev: Point[][], curr: Feature) => {
+    if (curr.geometry.type === 'Point') {
+      return prev;
+    }
 
-  // 도착 예상 시간 가공
-  const filtered = data.features
-    .filter((i: {
-      geometry: { type: string; }
-    }) => i.geometry.type === 'Point')
+    return [...prev, (curr.geometry.coordinates as number[][]).map((c: number[]) => ({
+      lat: c[1],
+      lng: c[0],
+    }))];
+  }, []);
+
+  const waypoints = data.features
+    .filter((i) => i.geometry.type === 'Point')
     .slice(1, -1)
-    .map((i: {
-      properties: {
-        viaPointId: string;
-        arriveTime: string;
-      }
-    }) => ({
-      name: i.properties.viaPointId,
-      arriveTime: i.properties.arriveTime,
+    .map((i) => ({
+      position: {
+        lat: (i.geometry.coordinates as number[])[1],
+        lng: (i.geometry.coordinates as number[])[0],
+      },
+      name: i.properties.viaPointId!,
+      arrivalTime: dayjs(i.properties.arriveTime!).toDate(),
     }));
 
-  return filtered.map((i: {
-    name: string;
-    arriveTime: string;
-  }) => {
-    const hour = i.arriveTime.slice(8, 10);
-    const minute = i.arriveTime.slice(10, 12);
-    return ({
-      passenger: passengers.find((p) => p.name === i.name),
-      arrivalTime: `${hour}시${minute}분`,
-    });
-  });
+  return {
+    segments,
+    waypoints,
+  };
 }

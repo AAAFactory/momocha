@@ -3,23 +3,13 @@ import { useCallback, useState } from 'react';
 import passengers from './data/passengers';
 
 import requestBestRoute from './service/requestBestRoute';
-
-interface Passenger {
-  name: string;
-  location: string;
-  coordinates: number[];
-}
-
-interface Route {
-  passenger: Passenger,
-  arrivalTime: string;
-}
+import BestRoute from './types/BestRoute';
 
 export default function useBestRoute() {
-  const [route, setRoute] = useState<Route[]>([]);
+  const [route, setRoute] = useState<BestRoute | null>(null);
 
-  const loadBestRoute = useCallback(async () => {
-    const bestRoute = await requestBestRoute(passengers);
+  const loadBestRoute = useCallback(async (baseCoordinates: number[]) => {
+    const bestRoute = await requestBestRoute(baseCoordinates, passengers);
     setRoute(bestRoute);
   }, []);
 

@@ -7,6 +7,7 @@ import SchedulesPage from './SchedulesPage';
 import SchedulePage from './SchedulePage';
 import BestRoutePage from './BestRoutePage';
 import LocationPage from './LocationPage';
+import MapPage from './MapPage';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: '/location',
     element: <LocationPage />,
+  },
+  {
+    path: '/map',
+    element: <MapPage />,
   },
 ]);
 
